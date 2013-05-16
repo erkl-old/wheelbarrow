@@ -1,12 +1,19 @@
 var crypto = require('crypto')
+  , uglify = require('uglify-js')
   , detective = require('detective')
+  , sort = require('./lib/sort')
+  , pack = require('./lib/pack')
+  , load = require('./lib/load')
 
 // generates a JavaScript payload from an array of input
 // file sources
-function build(files, load, callback) {
+function build(files, options, callback) {
   if (!Array.isArray(files) || files.length === 0) {
     return callback(new Error('missing input files'))
   }
+
+  options.load = options.load || load
+  options.minify = options.minify || false
 
   // validate the input, and calculate each file's hash
   for (var i = 0; i < files.length; i++) {
@@ -15,19 +22,32 @@ function build(files, load, callback) {
       return callback(new Error('missing file source'))
     }
 
-    file.hash = sha1(file.src)
     file.src = file.src.toString('utf8')
+    file.hash = sha1(file.src)
   }
 
-  // walk over the files
-  walk(files, load, function (err, files) {
+  // walk over the input files
+  walk(files, options.load, function (err, files) {
     if (err != null) {
       return callback(err)
     }
 
-    // TODO: topological sorting
-    // TODO: the payload generation
-    // callback(null, payload)
+    if (!(files = sort(files))) {
+      return callback(new Error('input contains circular dependency'))
+    }
+
+    var payload = pack(files)
+
+    // minify the output if we've been asked to
+    if (options.minify) {
+      try {
+        payload = uglify.minify(payload, { fromString: true }).code
+      } catch (err) {
+        return callback(err)
+      }
+    }
+
+    callback(null, payload)
   })
 }
 
@@ -49,8 +69,8 @@ function walk(files, load, callback) {
       var file = deps[i].file
       remaining.push(file)
 
-      file.hash = sha1(file.src)
       file.src = file.src.toString('utf8')
+      file.hash = sha1(file.src)
     }
 
     found.push(origin)
@@ -77,8 +97,8 @@ function walk(files, load, callback) {
   next()
 }
 
-// finds all required names in a file and loads them using
-// the user-provided load function
+// finds all required module names in a file and loads them using
+// the user-provided require function
 function resolve(origin, load, callback) {
   var names = detective(origin.src)
     , out = []
