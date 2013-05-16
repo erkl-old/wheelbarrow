@@ -77,19 +77,19 @@ function walk(files, load, callback) {
   next()
 }
 
-// finds all required paths in a file and loads them using
+// finds all required names in a file and loads them using
 // the user-provided load function
 function resolve(origin, load, callback) {
-  var paths = detective(origin.src)
+  var names = detective(origin.src)
     , out = []
 
-  if (paths.length === 0) {
+  if (names.length === 0) {
     return callback(null, origin, [])
   }
 
   // load each required module
-  paths.forEach(function (path) {
-    load(origin, path, function (err, file) {
+  names.forEach(function (name) {
+    load(origin, name, function (err, file) {
       if (err != null) {
         return callback(err)
       }
@@ -99,10 +99,10 @@ function resolve(origin, load, callback) {
         return callback(new Error('loaded file missing source'))
       }
 
-      out.push({ path: path, file: file })
+      out.push({ name: name, file: file })
 
       // are we done yet?
-      if (out.length === paths.length) {
+      if (out.length === names.length) {
         callback(null, origin, out)
       }
     })
