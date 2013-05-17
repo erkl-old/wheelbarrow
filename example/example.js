@@ -4,13 +4,13 @@ var fs = require('fs')
 
 // this function will be used to resolve all detected
 // `require()` calls
-function load(from, name, callback) {
+function load(origin, name, callback) {
   if (name === 'message') {
     return callback(null, { src: 'module.exports = "magic!"' })
   }
 
   // default to the built-in module loading function
-  wheelbarrow.load(from, name, callback)
+  wheelbarrow.load(origin, name, callback)
 }
 
 // a.js will be our point of entry
