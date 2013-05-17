@@ -12,6 +12,12 @@ function build(files, options, callback) {
     return callback(new Error('missing input files'))
   }
 
+  // make the options argument optional
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+
   options.load = options.load || load
   options.minify = options.minify || false
 
