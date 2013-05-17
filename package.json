@@ -1,6 +1,6 @@
 { "name": "wheelbarrow"
 , "description": "require anything into your front-end JavaScript"
-, "version": "1.1.0"
+, "version": "1.1.1"
 , "dependencies":
   { "browser-resolve": "~1.0.1"
   , "detective": "~2.1.1"
