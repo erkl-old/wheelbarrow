@@ -6,5 +6,9 @@
   , "detective": "~2.1.1"
   , "uglify-js": "~2.3.4"
   }
+, "repository":
+  { "type": "git"
+  , "url": "http://github.com/erkl/wheelbarrow.git"
+  }
 , "main": "lib/index.js"
 }
