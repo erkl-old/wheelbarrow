@@ -22,4 +22,4 @@
     modules[i][0].call(exports, require, module, exports)
     loaded.push(module.exports)
   }
-})([])
+})
